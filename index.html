@@ -100,7 +100,7 @@
 
     <header>
         <div class="tag">POSTA DEL MILISEGUNDO — MDW 1001</div>
-        <h1>VIDRIERA DE ESTAMPIYA! DE TIEMPO</h1>
+        <h1>VIDRIERA DE ESTAMPIYA DE TIEMPO</h1>
         <p style="font-size: 0.85rem; color: #67e8f9; margin-top: 5px;">Explorá el archivo visual y descargá cada pieza con certificación atómica en vivo.</p>
     </header>
 
@@ -113,10 +113,6 @@
     <canvas id="canvas-sello" style="display:none;"></canvas>
 
     <script>
-        const pathArray = window.location.pathname.split('/');
-        const userOrOrg = window.location.hostname.split('.')[0]; 
-        const repoName = window.location.hostname.includes('github.io') ? pathArray[1] : '';
-        
         let geoUbicacionTexto = "MDW-GEO: 38.0000° S, 57.5500° W [MARDELWOOD]";
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -139,8 +135,16 @@
             const contenedor = document.getElementById('vidriera-container');
             
             try {
+                // Detección automática inteligente del usuario y repositorio actual de GitHub Pages
+                const hostPartes = window.location.hostname.split('.');
+                const pathPartes = window.location.pathname.split('/').filter(Boolean);
+                
+                let userOrOrg = hostPartes[0];
+                let repoName = hostPartes.includes('github.io') ? pathPartes[0] : '';
+
+                // Si corre local o en la raíz de usuario, ajustamos de manera segura
                 let apiUrl = `https://api.github.com/repos/misterkong69-del/misterkong69-del.github.io/contents/`;
-                if (window.location.hostname.includes('github.io') && repoName && repoName !== '') {
+                if (hostPartes.includes('github.io') && repoName) {
                     apiUrl = `https://api.github.com/repos/${userOrOrg}/${repoName}/contents/`;
                 }
 
@@ -166,7 +170,7 @@
 
                 imagenes.forEach((imgData) => {
                     const tituloLindo = formatearTitulo(imgData.name);
-                    const hashAleatorio = "MDW-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-2026";
+                    const hashAleatorio = "MDW-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-1890";
                     
                     const tarjeta = document.createElement('div');
                     tarjeta.className = 'tarjeta-estampiya';
@@ -193,7 +197,7 @@
 
             } catch (error) {
                 console.error(error);
-                contenedor.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #ff5555; padding: 40px;">⚠️ Error al cargar las imágenes automáticamente. Verificá la conexión.</div>';
+                contenedor.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #ff5555; padding: 40px;">⚠️ Error al cargar las imágenes automáticamente. Verificá que el repositorio sea público.</div>';
             }
         }
 
@@ -214,7 +218,8 @@
             }
 
             const ahora = new Date();
-            const fStr = ahora.toLocaleDateString('es-AR');
+            const anioFijo = "1890"; // Año fijo especificado para Mardelwood
+            const fStr = `${String(ahora.getDate()).padStart(2, '0')}/${String(ahora.getMonth() + 1).padStart(2, '0')}/${anioFijo}`;
             const hStr = String(ahora.getHours()).padStart(2, '0');
             const mStr = String(ahora.getMinutes()).padStart(2, '0');
             const sStr = String(ahora.getSeconds()).padStart(2, '0');
@@ -225,9 +230,7 @@
 
             ctx.save();
 
-            // ==========================================
             // 1. LÍNEA DE TIEMPO GIGANTE ARRIBA
-            // ==========================================
             ctx.shadowColor = "rgba(0, 255, 255, 0.9)";
             ctx.shadowBlur = 15 * escala;
 
@@ -240,43 +243,34 @@
 
             ctx.fillStyle = "#ffffff";
             ctx.font = `700 ${Math.round(26 * escala)}px 'Orbitron', sans-serif`;
-            ctx.fillText(`FECHA: ${fStr} — POSTA 1001 (MDW)`, posXLinea, posYLinea + 40 * escala);
+            ctx.fillText(`FECHA: ${fStr} — MARDELWOOD (MDW)`, posXLinea, posYLinea + 40 * escala);
 
-
-            // ==========================================
-            // 2. HASH ID Y GEOLOCALIZACIÓN ABAJO A LA IZQUIERDA (¡AGRANDADOS!)
-            // ==========================================
+            // 2. HASH ID Y GEOLOCALIZACIÓN ABAJO A LA IZQUIERDA
             ctx.shadowColor = "rgba(0, 255, 255, 0.7)";
             ctx.shadowBlur = 8 * escala;
 
             ctx.fillStyle = "#00ffff";
-            ctx.font = `bold ${Math.round(24 * escala)}px 'Courier New', monospace`; // Aumentado de 18 a 24
+            ctx.font = `bold ${Math.round(24 * escala)}px 'Courier New', monospace`;
             ctx.fillText(hashSello, posXLinea, canvas.height - (75 * escala));
             
             ctx.fillStyle = "#a5f3fc";
-            ctx.font = `bold ${Math.round(20 * escala)}px 'Courier New', monospace`; // Aumentado de 15 a 20
+            ctx.font = `bold ${Math.round(20 * escala)}px 'Courier New', monospace`;
             ctx.fillText(geoUbicacionTexto, posXLinea, canvas.height - (40 * escala));
 
-
-            // ==========================================
-            // 3. AUSPICIO INFERIOR CENTRADO (¡MUCHO MÁS GRANDE Y VISIBLE!)
-            // ==========================================
+            // 3. AUSPICIO INFERIOR CENTRADO
             ctx.save();
             ctx.shadowColor = "rgba(0, 255, 255, 0.9)";
             ctx.shadowBlur = 12 * escala;
             ctx.fillStyle = "#00ffff";
-            ctx.font = `bold ${Math.round(22 * escala)}px 'Courier New', monospace`; // Aumentado de 16 a 22
+            ctx.font = `bold ${Math.round(22 * escala)}px 'Courier New', monospace`;
             ctx.textAlign = "center";
-            ctx.fillText("Auspicia: VentaniYa Soluciones y BonusYa tus descuentos en la costa", canvas.width / 2, canvas.height - (15 * escala));
+            ctx.fillText("Auspicia: MARDELWOOD — Estampado Oficial 1890", canvas.width / 2, canvas.height - (15 * escala));
             ctx.restore();
 
-
-            // ==========================================
             // 4. SELLO REDONDO APARTE
-            // ==========================================
             const radioSello = 130 * escala;
             const centroX = canvas.width - radioSello - (60 * escala);
-            const centroY = canvas.height - radioSello - (90 * escala); // Ajustado un poquito arriba para dar espacio a los textos grandes
+            const centroY = canvas.height - radioSello - (90 * escala);
 
             ctx.save();
             ctx.translate(centroX, centroY);
@@ -303,7 +297,7 @@
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            const textoSuperior = "★ VENTANIYA SOLUCIONES ★";
+            const textoSuperior = "★ MARDELWOOD 1890 ★";
             const radioTexto = radioSello - (22 * escala);
             for (let i = 0; i < textoSuperior.length; i++) {
                 ctx.save();
@@ -325,13 +319,13 @@
 
             ctx.font = `${Math.round(10 * escala)}px 'Courier New', monospace`;
             ctx.fillStyle = "#a5f3fc";
-            ctx.fillText("MDW-1001", 0, 32 * escala);
+            ctx.fillText("MDW-1890", 0, 32 * escala);
 
             ctx.restore();
             ctx.restore();
 
             const enlace = document.createElement('a');
-            enlace.download = `ESTAMPIYA_TIEMPO_${ahora.getTime()}.jpg`;
+            enlace.download = `ESTAMPIYA_MARDELWOOD_1890.jpg`;
             enlace.href = canvas.toDataURL('image/jpeg', 0.98);
             enlace.click();
         }
