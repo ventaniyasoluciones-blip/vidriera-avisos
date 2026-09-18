@@ -104,25 +104,49 @@
         <p style="font-size: 0.85rem; color: #67e8f9; margin-top: 5px;">Explorá el archivo visual y descargá cada pieza con certificación atómica en vivo.</p>
     </header>
 
-    <main id="vidriera-container" class="vidriera-grid">
-        <div style="grid-column: 1 / -1; text-align: center; color: #00ffff; padding: 40px;">
-            Cargando piezas de la vidriera...
+    <main class="vidriera-grid">
+
+        <!-- TARJETA 1 -->
+        <div class="tarjeta-estampiya">
+            <div>
+                <div class="estampiya-frame">
+                    <!-- Reemplazá 'imagen1.jpg' por el nombre exacto de tu archivo en el repositorio -->
+                    <img src="imagen1.jpg" alt="Aviso Mardelwood 1" crossorigin="anonymous" class="img-estampa-ref">
+                </div>
+                <div class="info-estampa">
+                    <h3>Aviso Principal 01</h3>
+                    <div><strong>Posta:</strong> 1001 (MDW)</div>
+                    <div><strong>Hash Base:</strong> MDW-X991-1890</div>
+                </div>
+            </div>
+            <button class="btn-descarga-mdw" onclick="descargarEstampiyaDeVidriera(this)">
+                📥 VER Y DESCARGAR CON MS
+            </button>
         </div>
+
+        <!-- TARJETA 2 (Agregá o duplicá bloques como este si tenés más imágenes) -->
+        <div class="tarjeta-estampiya">
+            <div>
+                <div class="estampiya-frame">
+                    <!-- Reemplazá 'imagen2.jpg' por el nombre exacto de tu otro archivo -->
+                    <img src="imagen2.jpg" alt="Aviso Mardelwood 2" crossorigin="anonymous" class="img-estampa-ref">
+                </div>
+                <div class="info-estampa">
+                    <h3>Aviso Clandestino 02</h3>
+                    <div><strong>Posta:</strong> 1001 (MDW)</div>
+                    <div><strong>Hash Base:</strong> MDW-B442-1890</div>
+                </div>
+            </div>
+            <button class="btn-descarga-mdw" onclick="descargarEstampiyaDeVidriera(this)">
+                📥 VER Y DESCARGAR CON MS
+            </button>
+        </div>
+
     </main>
 
     <canvas id="canvas-sello" style="display:none;"></canvas>
 
     <script>
-        // -----------------------------------------------------------------
-        // ESCRIBÍ ACÁ LOS NOMBRES EXACTOS DE TUS ARCHIVOS DE IMAGEN
-        // (Ejemplo: "aviso1.jpg", "foto-auto.png", etc.)
-        // -----------------------------------------------------------------
-        const listaDeImagenes = [
-            "imagen1.jpg",
-            "imagen2.png"
-            // Agregá más nombres entre comillas y separados por coma si tenés más
-        ];
-
         let geoUbicacionTexto = "MDW-GEO: 38.0000° S, 57.5500° W [MARDELWOOD]";
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -133,51 +157,6 @@
                     console.log("Usando coordenadas base de Mardelwood.");
                 }
             );
-        }
-        
-        function formatearTitulo(nombreArchivo) {
-            let sinExtension = nombreArchivo.substring(0, nombreArchivo.lastIndexOf('.')) || nombreArchivo;
-            let limpio = sinExtension.replace(/[-_]/g, ' ');
-            return limpio.charAt(0).toUpperCase() + limpio.slice(1);
-        }
-
-        function cargarVidriera() {
-            const contenedor = document.getElementById('vidriera-container');
-            
-            if (!listaDeImagenes || listaDeImagenes.length === 0 || listaDeImagenes[0] === "imagen1.jpg") {
-                contenedor.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #ff5555; padding: 40px;">⚠️ Tenés que poner los nombres reales de tus imágenes en el archivo index.html (en la listaDeImagenes).</div>';
-                return;
-            }
-
-            contenedor.innerHTML = "";
-
-            listaDeImagenes.forEach((nombreArchivo) => {
-                const tituloLindo = formatearTitulo(nombreArchivo);
-                const hashAleatorio = "MDW-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-1890";
-                
-                const tarjeta = document.createElement('div');
-                tarjeta.className = 'tarjeta-estampiya';
-                
-                // Carga directa desde el mismo repositorio sin pasar por APIs bloqueadas
-                const urlImagen = nombreArchivo + `?v=${Math.random()}`;
-
-                tarjeta.innerHTML = `
-                    <div>
-                        <div class="estampiya-frame">
-                            <img src="${urlImagen}" alt="${tituloLindo}" crossorigin="anonymous" class="img-estampa-ref" onerror="this.src='https://via.placeholder.com/400x300/111d28/00ffff?text=Imagen+No+Encontrada'">
-                        </div>
-                        <div class="info-estampa">
-                            <h3>${tituloLindo}</h3>
-                            <div><strong>Posta:</strong> 1001 (MDW)</div>
-                            <div><strong>Hash Base:</strong> ${hashAleatorio}</div>
-                        </div>
-                    </div>
-                    <button class="btn-descarga-mdw" onclick="descargarEstampiyaDeVidriera(this)">
-                        📥 VER Y DESCARGAR CON MS
-                    </button>
-                `;
-                contenedor.appendChild(tarjeta);
-            });
         }
 
         function descargarEstampiyaDeVidriera(btn) {
@@ -192,7 +171,7 @@
             try {
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             } catch (e) {
-                alert("Error de seguridad al procesar la imagen (CORS).");
+                alert("Error de seguridad (CORS). Comprobá que la imagen esté en el mismo repositorio.");
                 return;
             }
 
@@ -308,8 +287,6 @@
             enlace.href = canvas.toDataURL('image/jpeg', 0.98);
             enlace.click();
         }
-
-        window.onload = cargarVidriera;
     </script>
 
 </body>
