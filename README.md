@@ -1,2 +1,0 @@
-# vidriera-avisos
-vidriera avisos
