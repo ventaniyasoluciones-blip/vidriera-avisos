@@ -106,7 +106,7 @@
 
     <main id="vidriera-container" class="vidriera-grid">
         <div style="grid-column: 1 / -1; text-align: center; color: #00ffff; padding: 40px;">
-            Buscando piezas en la carpeta de GitHub...
+            Conectando con la red atómica de Ventaniya...
         </div>
     </main>
 
@@ -135,23 +135,15 @@
             const contenedor = document.getElementById('vidriera-container');
             
             try {
-                // Detección automática inteligente del usuario y repositorio actual de GitHub Pages
-                const hostPartes = window.location.hostname.split('.');
-                const pathPartes = window.location.pathname.split('/').filter(Boolean);
-                
-                let userOrOrg = hostPartes[0];
-                let repoName = hostPartes.includes('github.io') ? pathPartes[0] : '';
+                // Forzamos directamente los datos de este repositorio exacto para evitar errores de ruta
+                const usuario = "ventaniyasoluciones-blip";
+                const repositorio = "vidriera-avisos";
+                const rama = "main"; // Si tu rama principal se llama diferente (ej: master o principal), cambialo acá
 
-                // Si corre local o en la raíz de usuario, ajustamos de manera segura
-                let apiUrl = `https://api.github.com/repos/misterkong69-del/misterkong69-del.github.io/contents/`;
-                if (hostPartes.includes('github.io') && repoName) {
-                    apiUrl = `https://api.github.com/repos/${userOrOrg}/${repoName}/contents/`;
-                }
-
-                apiUrl += `?t=${new Date().getTime()}`;
+                const apiUrl = `https://api.github.com/repos/${usuario}/${repositorio}/contents/?ref=${rama}&t=${new Date().getTime()}`;
 
                 const respuesta = await fetch(apiUrl);
-                if (!respuesta.ok) throw new Error("No se pudo conectar con el repositorio.");
+                if (!respuesta.ok) throw new Error("No se pudo conectar con la API de GitHub.");
                 
                 const archivos = await respuesta.json();
                 
@@ -162,7 +154,7 @@
                 });
 
                 if (imagenes.length === 0) {
-                    contenedor.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #ff5555; padding: 40px;">⚠️ No se encontraron imágenes en el repositorio.</div>';
+                    contenedor.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #ff5555; padding: 40px;">⚠️ No se encontraron imágenes en la raíz de este repositorio.</div>';
                     return;
                 }
 
@@ -175,7 +167,7 @@
                     const tarjeta = document.createElement('div');
                     tarjeta.className = 'tarjeta-estampiya';
                     
-                    const urlImagenFresca = `${imgData.name}?v=${Math.random()}`;
+                    const urlImagenFresca = imgData.download_url + `?v=${Math.random()}`;
 
                     tarjeta.innerHTML = `
                         <div>
@@ -197,7 +189,14 @@
 
             } catch (error) {
                 console.error(error);
-                contenedor.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #ff5555; padding: 40px;">⚠️ Error al cargar las imágenes automáticamente. Verificá que el repositorio sea público.</div>';
+                contenedor.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; color: #ff5555; padding: 30px;">
+                        ⚠️ Error al leer el repositorio de Ventaniya.<br><br>
+                        <span style="font-size:0.8rem; color:#a5f3fc;">
+                        Verificá que el repositorio sea público y que las imágenes estén subidas directamente en la raíz.
+                        </span>
+                    </div>
+                `;
             }
         }
 
@@ -218,7 +217,7 @@
             }
 
             const ahora = new Date();
-            const anioFijo = "1890"; // Año fijo especificado para Mardelwood
+            const anioFijo = "1890"; 
             const fStr = `${String(ahora.getDate()).padStart(2, '0')}/${String(ahora.getMonth() + 1).padStart(2, '0')}/${anioFijo}`;
             const hStr = String(ahora.getHours()).padStart(2, '0');
             const mStr = String(ahora.getMinutes()).padStart(2, '0');
