@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posta 1001 — Vidriera Clandestina Mardelwood (MDW)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0b131a;
+            color: #d8f8ff;
+            font-family: 'Courier Prime', monospace;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            border-bottom: 2px dashed #00ffff;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        header .tag {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: #00ffff;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0,255,255,0.5);
+        }
+        header h1 {
+            font-family: 'Special Elite', cursive;
+            font-size: 1.8rem;
+            margin: 8px 0 0 0;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(0,255,255,0.7);
+        }
+        .vidriera-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .tarjeta-estampiya {
+            background-color: #111d28;
+            border: 3px solid #008b8b;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .estampiya-frame {
+            background: #0b131a;
+            padding: 8px;
+            border: 2px solid #00ffff;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        .estampiya-frame img {
+            width: 100%;
+            height: auto;
+            border-radius: 2px;
+            display: block;
+        }
+        .info-estampa {
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            color: #a5f3fc;
+        }
+        .info-estampa h3 {
+            font-family: 'Special Elite', cursive;
+            font-size: 1rem;
+            color: #ffffff;
+            margin: 0 0 5px 0;
+        }
+        .btn-descarga-mdw {
+            background-color: #00ffff;
+            color: #070c10;
+            border: none;
+            padding: 10px;
+            font-family: 'Special Elite', cursive;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-descarga-mdw:hover {
+            background-color: #ffffff;
+            box-shadow: 0 0 20px rgba(0,255,255,0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="tag">POSTA DEL MILISEGUNDO — MDW 1001</div>
+        <h1>VIDRIERA DE ESTAMPIYA! DE TIEMPO</h1>
+        <p style="font-size: 0.85rem; color: #67e8f9; margin-top: 5px;">Explorá el archivo visual y descargá cada pieza con certificación atómica en vivo.</p>
+    </header>
+
+    <main id="vidriera-container" class="vidriera-grid">
+        <div style="grid-column: 1 / -1; text-align: center; color: #00ffff; padding: 40px;">
+            Buscando piezas en la carpeta de GitHub...
+        </div>
+    </main>
+
+    <canvas id="canvas-sello" style="display:none;"></canvas>
+
+    <script>
+        const pathArray = window.location.pathname.split('/');
+        const userOrOrg = window.location.hostname.split('.')[0]; 
+        const repoName = window.location.hostname.includes('github.io') ? pathArray[1] : '';
+        
+        let geoUbicacionTexto = "MDW-GEO: 38.0000° S, 57.5500° W [MARDELWOOD]";
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    geoUbicacionTexto = `GEO: ${position.coords.latitude.toFixed(4)}° S, ${position.coords.longitude.toFixed(4)}° W [MDW]`;
+                },
+                (error) => {
+                    console.log("Usando coordenadas base de Mardelwood.");
+                }
+            );
+        }
+        
+        function formatearTitulo(nombreArchivo) {
+            let sinExtension = nombreArchivo.substring(0, nombreArchivo.lastIndexOf('.')) || nombreArchivo;
+            let limpio = sinExtension.replace(/[-_]/g, ' ');
+            return limpio.charAt(0).toUpperCase() + limpio.slice(1);
+        }
+
+        async function cargarVidrieraAutomatica() {
+            const contenedor = document.getElementById('vidriera-container');
+            
+            try {
+                let apiUrl = `https://api.github.com/repos/misterkong69-del/misterkong69-del.github.io/contents/`;
+                if (window.location.hostname.includes('github.io') && repoName && repoName !== '') {
+                    apiUrl = `https://api.github.com/repos/${userOrOrg}/${repoName}/contents/`;
+                }
+
+                apiUrl += `?t=${new Date().getTime()}`;
+
+                const respuesta = await fetch(apiUrl);
+                if (!respuesta.ok) throw new Error("No se pudo conectar con el repositorio.");
+                
+                const archivos = await respuesta.json();
+                
+                const imagenes = archivos.filter(item => {
+                    if (item.type !== 'file') return false;
+                    const ext = item.name.split('.').pop().toLowerCase();
+                    return ['png', 'jpg', 'jpeg', 'webp'].includes(ext);
+                });
+
+                if (imagenes.length === 0) {
+                    contenedor.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #ff5555; padding: 40px;">⚠️ No se encontraron imágenes en el repositorio.</div>';
+                    return;
+                }
+
+                contenedor.innerHTML = "";
+
+                imagenes.forEach((imgData) => {
+                    const tituloLindo = formatearTitulo(imgData.name);
+                    const hashAleatorio = "MDW-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-2026";
+                    
+                    const tarjeta = document.createElement('div');
+                    tarjeta.className = 'tarjeta-estampiya';
+                    
+                    const urlImagenFresca = `${imgData.name}?v=${Math.random()}`;
+
+                    tarjeta.innerHTML = `
+                        <div>
+                            <div class="estampiya-frame">
+                                <img src="${urlImagenFresca}" alt="${tituloLindo}" crossorigin="anonymous" class="img-estampa-ref">
+                            </div>
+                            <div class="info-estampa">
+                                <h3>${tituloLindo}</h3>
+                                <div><strong>Posta:</strong> 1001 (MDW)</div>
+                                <div><strong>Hash Base:</strong> ${hashAleatorio}</div>
+                            </div>
+                        </div>
+                        <button class="btn-descarga-mdw" onclick="descargarEstampiyaDeVidriera(this)">
+                            📥 VER Y DESCARGAR CON MS
+                        </button>
+                    `;
+                    contenedor.appendChild(tarjeta);
+                });
+
+            } catch (error) {
+                console.error(error);
+                contenedor.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #ff5555; padding: 40px;">⚠️ Error al cargar las imágenes automáticamente. Verificá la conexión.</div>';
+            }
+        }
+
+        function descargarEstampiyaDeVidriera(btn) {
+            const tarjeta = btn.closest('.tarjeta-estampiya');
+            const img = tarjeta.querySelector('.img-estampa-ref');
+            const canvas = document.getElementById('canvas-sello');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = img.naturalWidth || 1200;
+            canvas.height = img.naturalHeight || 800;
+
+            try {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            } catch (e) {
+                alert("Error de seguridad al procesar la imagen.");
+                return;
+            }
+
+            const ahora = new Date();
+            const fStr = ahora.toLocaleDateString('es-AR');
+            const hStr = String(ahora.getHours()).padStart(2, '0');
+            const mStr = String(ahora.getMinutes()).padStart(2, '0');
+            const sStr = String(ahora.getSeconds()).padStart(2, '0');
+            const msStr = String(ahora.getMilliseconds()).padStart(3, '0');
+            const hashSello = "HASH-ID: MDW-" + Math.random().toString(36).substring(2, 10).toUpperCase() + "-1001";
+
+            const escala = canvas.width / 1200;
+
+            ctx.save();
+
+            // ==========================================
+            // 1. LÍNEA DE TIEMPO GIGANTE ARRIBA
+            // ==========================================
+            ctx.shadowColor = "rgba(0, 255, 255, 0.9)";
+            ctx.shadowBlur = 15 * escala;
+
+            const posXLinea = 50 * escala;
+            const posYLinea = 100 * escala;
+
+            ctx.fillStyle = "#00ffff";
+            ctx.font = `900 ${Math.round(54 * escala)}px 'Orbitron', sans-serif`;
+            ctx.fillText(`${hStr}:${mStr}:${sStr}.${msStr}`, posXLinea, posYLinea);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = `700 ${Math.round(26 * escala)}px 'Orbitron', sans-serif`;
+            ctx.fillText(`FECHA: ${fStr} — POSTA 1001 (MDW)`, posXLinea, posYLinea + 40 * escala);
+
+
+            // ==========================================
+            // 2. HASH ID Y GEOLOCALIZACIÓN ABAJO A LA IZQUIERDA (¡AGRANDADOS!)
+            // ==========================================
+            ctx.shadowColor = "rgba(0, 255, 255, 0.7)";
+            ctx.shadowBlur = 8 * escala;
+
+            ctx.fillStyle = "#00ffff";
+            ctx.font = `bold ${Math.round(24 * escala)}px 'Courier New', monospace`; // Aumentado de 18 a 24
+            ctx.fillText(hashSello, posXLinea, canvas.height - (75 * escala));
+            
+            ctx.fillStyle = "#a5f3fc";
+            ctx.font = `bold ${Math.round(20 * escala)}px 'Courier New', monospace`; // Aumentado de 15 a 20
+            ctx.fillText(geoUbicacionTexto, posXLinea, canvas.height - (40 * escala));
+
+
+            // ==========================================
+            // 3. AUSPICIO INFERIOR CENTRADO (¡MUCHO MÁS GRANDE Y VISIBLE!)
+            // ==========================================
+            ctx.save();
+            ctx.shadowColor = "rgba(0, 255, 255, 0.9)";
+            ctx.shadowBlur = 12 * escala;
+            ctx.fillStyle = "#00ffff";
+            ctx.font = `bold ${Math.round(22 * escala)}px 'Courier New', monospace`; // Aumentado de 16 a 22
+            ctx.textAlign = "center";
+            ctx.fillText("Auspicia: VentaniYa Soluciones y BonusYa tus descuentos en la costa", canvas.width / 2, canvas.height - (15 * escala));
+            ctx.restore();
+
+
+            // ==========================================
+            // 4. SELLO REDONDO APARTE
+            // ==========================================
+            const radioSello = 130 * escala;
+            const centroX = canvas.width - radioSello - (60 * escala);
+            const centroY = canvas.height - radioSello - (90 * escala); // Ajustado un poquito arriba para dar espacio a los textos grandes
+
+            ctx.save();
+            ctx.translate(centroX, centroY);
+
+            ctx.shadowColor = "rgba(0, 255, 255, 0.6)";
+            ctx.shadowBlur = 12 * escala;
+
+            ctx.beginPath();
+            ctx.arc(0, 0, radioSello, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(7, 12, 16, 0.55)";
+            ctx.fill();
+
+            ctx.strokeStyle = "#00ffff";
+            ctx.lineWidth = 5 * escala;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(0, 0, radioSello - (10 * escala), 0, Math.PI * 2);
+            ctx.lineWidth = 1.5 * escala;
+            ctx.stroke();
+
+            ctx.fillStyle = "#00ffff";
+            ctx.font = `bold ${Math.round(13 * escala)}px 'Courier New', monospace`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            const textoSuperior = "★ VENTANIYA SOLUCIONES ★";
+            const radioTexto = radioSello - (22 * escala);
+            for (let i = 0; i < textoSuperior.length; i++) {
+                ctx.save();
+                let angulo = (i * 0.12) - (textoSuperior.length * 0.058);
+                ctx.rotate(angulo);
+                ctx.translate(0, -radioTexto);
+                ctx.rotate(Math.PI / 2);
+                ctx.fillText(textoSuperior[i], 0, 0);
+                ctx.restore();
+            }
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = `bold ${Math.round(11 * escala)}px 'Orbitron', sans-serif`;
+            ctx.fillText("CERTIFICADO", 0, -15 * escala);
+
+            ctx.fillStyle = "#00ffff";
+            ctx.font = `bold ${Math.round(14 * escala)}px 'Orbitron', sans-serif`;
+            ctx.fillText("ATÓMICO", 0, 8 * escala);
+
+            ctx.font = `${Math.round(10 * escala)}px 'Courier New', monospace`;
+            ctx.fillStyle = "#a5f3fc";
+            ctx.fillText("MDW-1001", 0, 32 * escala);
+
+            ctx.restore();
+            ctx.restore();
+
+            const enlace = document.createElement('a');
+            enlace.download = `ESTAMPIYA_TIEMPO_${ahora.getTime()}.jpg`;
+            enlace.href = canvas.toDataURL('image/jpeg', 0.98);
+            enlace.click();
+        }
+
+        window.onload = cargarVidrieraAutomatica;
+    </script>
+
+</body>
+</html>
